@@ -1,4 +1,4 @@
-# vue-todorest
+# todorest
 
 ## Project setup
 ```
