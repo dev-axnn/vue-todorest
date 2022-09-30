@@ -2,7 +2,7 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
       <RouterLink class="navbar-brand" :to="{ name: 'Home' }"
-        >My Todo</RouterLink
+        >My Todo list</RouterLink
       >
       <button
         class="navbar-toggler"
@@ -27,15 +27,30 @@
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link" :to="{ name: 'Todos' }"
-              >Todos</RouterLink
+              >Todo list</RouterLink
+            >
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" :to="{ name: 'TodoCreate' }"
+              >TodoCreate</RouterLink
+            >
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" :to="{ name: 'About' }"
+              >About</RouterLink
+            >
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" :to="{ name: 'Profile' }"
+              >Profile</RouterLink
             >
           </li>
           <li class="nav-item">
             <a
               class="nav-link"
-              href="https://github.com/dev-axnn/vue-todorest.git"
+              href="https://github.com/qwertymi/Todorest"
               target="_blank"
-              >GitHub</a
+              >Github</a
             >
           </li>
         </ul>
@@ -44,9 +59,7 @@
   </nav>
   <RouterView />
 </template>
-
 <script></script>
-
 <style>
 #app {
 }

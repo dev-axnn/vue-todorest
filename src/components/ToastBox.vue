@@ -16,14 +16,18 @@ export default {
       default: "success",
     },
   },
-  setup() {},
+  setup() {
+    return {};
+  },
 };
 </script>
 
 <style>
 .toast-box {
   position: fixed;
-  top: 10px;
+  top: 8px;
   right: 10px;
+  height: 40px;
+  padding-top: 7px;
 }
 </style>
