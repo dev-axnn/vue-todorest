@@ -1,28 +1,17 @@
-import { ref, onUnmounted } from "vue";
+import { computed } from "vue";
+import { useStore } from "vuex";
 export const useToast = () => {
-  const showToast = ref(false);
-  const toastMessage = ref("");
-  const toastType = ref("");
-  const toastTimer = ref(null);
-
-  const triggerToast = (message, color = "success") => {
-    toastMessage.value = message;
-    toastType.value = color;
-    showToast.value = true;
-    toastTimer.value = setTimeout(() => {
-      toastMessage.value = "";
-      toastType.value = "";
-      showToast.value = false;
-      console.log("안내창제거됨");
-    }, 3000);
+  // vuex 접근 관리
+  const store = useStore();
+  // 안내상제에 보여지는 목록을 관리
+  const toasts = computed(() => store.state.toast.toasts);
+  // 안내상자 실행 메소드
+  const triggerToast = (message, color) => {
+    store.dispatch("toast/triggerToast", { message, color });
   };
-  onUnmounted(() => {
-    clearTimeout(toastTimer.value);
-  });
+
   return {
-    toastMessage,
-    showToast,
-    toastType,
+    toasts,
     triggerToast,
   };
 };

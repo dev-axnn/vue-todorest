@@ -6,6 +6,7 @@
         Create Todo
       </button>
     </div>
+
     <!-- 할일검색폼 -->
     <input
       class="form-control"
@@ -13,8 +14,7 @@
       v-model="searchText"
       placeholder="Search"
     />
-    <!-- 할일입력 -->
-    <TodoForm @add-todo="addTodo" style="margin-top: 10px" />
+
     <!-- 서버에러 출력 -->
     <ErrorBox :errtext="error" />
     <!-- 목록없음 안내 -->
@@ -27,28 +27,28 @@
     />
     <!-- Pagination -->
     <PaginationView :page="page" :totalpage="totalPage" @get-todo="getTodo" />
-    <!-- 안내상자 -->
-    <ToastBox v-if="showToast" :message="toastMessage" :color="toastType" />
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import { useRouter } from "vue-router";
-import { useToast } from "@/composables/toast";
+import axios from "@/api/axios";
 import { computed, ref, watch, watchEffect } from "vue";
 import TodoList from "@/components/TodoList.vue";
 import PaginationView from "@/components/PaginationView.vue";
 import ErrorBox from "@/components/ErrorBox.vue";
-import ToastBox from "@/components/ToastBox.vue";
+import { useRouter } from "vue-router";
+import { useToast } from "@/composables/toast";
+
 export default {
   components: {
     TodoList,
     PaginationView,
     ErrorBox,
-    ToastBox,
   },
   setup() {
+    // toast 기능 관련
+    const { triggerToast } = useToast();
+
     const todos = ref([]);
 
     // Pagination 구현
@@ -100,52 +100,34 @@ export default {
     const getTodo = async (nowPage = page.value) => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/todos?_page=${nowPage}&_limit=${limit}&subject_like=${searchText.value}&_order=desc&_sort=id`
+          `todos?_page=${nowPage}&_limit=${limit}&subject_like=${searchText.value}&_order=desc&_sort=id`
         );
         todos.value = response.data;
         // 총 목록수
         totalCout.value = response.headers["x-total-count"];
         page.value = nowPage;
-        triggerToast("Welcome :)");
       } catch (err) {
         error.value = "서버 목록 호출에 실패했습니다. 잠시 뒤 이용해주세요.";
-        triggerToast("서버 호출 실패!", "danger");
       }
     };
 
     getTodo();
 
     const error = ref("");
-    const addTodo = async (todo) => {
-      try {
-        await axios.post("http://localhost:3000/todos", {
-          id: todo.id,
-          subject: todo.subject,
-          complete: todo.complete,
-        });
-        todos.value.push(todo);
-        // 목록이 추가되면 1페이지로 이동
-        getTodo(1);
-        triggerToast("저장됨");
-      } catch (err) {
-        error.value = "서버 데이터 저장 실패";
-        triggerToast("서버 데이터 저장 실패!", "danger");
-      }
-    };
 
     const deleteTodo = async (index) => {
       try {
-        // 현재 index 는 배열 인덱스 번호 0, 1,2,3,4, 가 전송된다.
-        // 실제 저장되어 있는 id 를 파악한다.
-        const id = todos.value[index].id;
-        await axios.delete("http://localhost:3000/todos/" + id);
-        todos.value.splice(index, 1);
-        // 목록이 추가되면 1페이지로 이동
+        const id = index;
+        await axios.delete("todos/" + id);
+
+        // 목록이 삭제 되면 현재페이지로 이동
         getTodo(page.value);
-        triggerToast("삭제 성공!");
+        // emit("delete-todo-toast");
+        triggerToast("내용이 삭제되었습니다.", "success");
       } catch (err) {
         error.value = "삭제 요청이 거부되었습니다.";
-        triggerToast("삭제 실패!", "danger");
+        // emit("delete-todo-fail-toast");
+        triggerToast("삭제 요청이 거부되었습니다.", "danger");
       }
     };
 
@@ -155,29 +137,29 @@ export default {
         // 업데이트 할 내용을 전달합니다.
         const id = todos.value[index].id;
         const complete = !todos.value[index].complete;
-        await axios.patch("http://localhost:3000/todos/" + id, {
+        await axios.patch("todos/" + id, {
           complete,
         });
 
         todos.value[index].complete = complete;
-        triggerToast("업데이트에 성공하였습니다.");
+        // emit("update-todo-toast");
+        triggerToast("내용이 업데이트 되었습니다.", "success");
       } catch (err) {
         error.value = "업데이트에 실패하였습니다.";
-        triggerToast("업데이트 실패!", "danger");
+        // emit("update-todo-fail-toast");
+        triggerToast("업데이트에 실패하였습니다.", "danger");
       }
     };
 
-    // 안내창 관련
-    const { showToast, toastMessage, toastType, triggerToast } = useToast();
-
     const router = useRouter();
     const moveToCreate = () => {
-      router.push({ name: "TodoCreate" });
+      router.push({
+        name: "TodoCreate",
+      });
     };
 
     return {
       todos,
-      addTodo,
       deleteTodo,
       toggleTodo,
       searchText,
@@ -186,9 +168,7 @@ export default {
       totalPage,
       page,
       getTodo,
-      toastMessage,
-      showToast,
-      toastType,
+
       moveToCreate,
     };
   },

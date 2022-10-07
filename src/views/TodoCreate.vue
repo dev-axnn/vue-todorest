@@ -11,6 +11,10 @@ export default {
   components: {
     TodoForm,
   },
+  setup() {
+    return {};
+  },
 };
 </script>
+
 <style></style>
